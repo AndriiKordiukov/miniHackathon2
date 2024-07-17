@@ -9,6 +9,14 @@ import java.util.List;
 
 @Entity
 @Table
+@NamedQuery(name="updateDeptById", query = "UPDATE Department set deptName = :newDeptName where deptId = :deptId")
+@NamedQuery(name="updateDeptByName", query = "UPDATE Department set deptName = :newDeptName where deptName = :deptName")
+@NamedQuery(name="selectDeptNames", query = "SELECT d.deptName FROM Department d")
+@NamedQuery(name = "Department.findAll", query = "SELECT d FROM Department d")
+@NamedQuery(name="selectDeptById", query = "FROM Department d WHERE d.deptId = :deptId")
+@NamedQuery(name="selectDeptNameById", query = "SELECT deptName FROM Department d WHERE d.deptId = :deptId")
+@NamedQuery(name="selectDeptNameByName", query = "SELECT deptName FROM Department d WHERE d.deptName = :departmentName")
+
 public class Department implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -21,7 +29,10 @@ public class Department implements Serializable {
     @OneToMany(mappedBy = "department")
     private List<Teacher> teacherList = new ArrayList<>();
 
-    public Department(int deptId, String deptName) {
+
+
+
+public Department(int deptId, String deptName) {
         super();
         this.deptId = deptId;
         this.deptName = deptName;
