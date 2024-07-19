@@ -114,7 +114,7 @@ public class manyToOneInteractive {
         int state = 0;
         while(state != -1) {
             Transaction t = session.beginTransaction();
-            System.out.println("Which Teacher would you like to modify?");
+            System.out.println("\nWhich Teacher would you like to modify?");
             System.out.println("Enter Teacher ID: ");
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume newline character
@@ -139,7 +139,10 @@ public class manyToOneInteractive {
 
             } catch (NoResultException e) {
                 System.out.println("Invalid ID. Please try again.");
+                t.rollback();
+                //session.close();
             }
+
         }
     }
 
@@ -166,7 +169,7 @@ public class manyToOneInteractive {
         List<Teacher> teachers = session.createNamedQuery("Teacher.findAll", Teacher.class)
                 .getResultList();
 
-        System.out.printf("\n%5s %10s %s%n", "Id", " Teacher Name", " Department");
+        System.out.printf("\n%5s %10s %10s%n", "Id", " Teacher Name", " Department");
         System.out.println("===========================================");
 
         for(Teacher teacher : teachers) {
@@ -186,7 +189,7 @@ public class manyToOneInteractive {
 
 
             //System.out.println(teacher.getTeacherName() + ": " + teacher.getTeacherId() + "\n");
-            System.out.printf("%5s. %s %13s%n", teacher.getTeacherId(), teacher.getTeacherName(), departmentName);
+            System.out.printf("%5s. %10s %13s%n", teacher.getTeacherId(), teacher.getTeacherName(), departmentName);
         }
 
         t.commit();
