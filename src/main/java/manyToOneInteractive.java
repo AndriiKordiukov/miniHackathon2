@@ -1,5 +1,4 @@
 import jakarta.persistence.NoResultException;
-import jakarta.persistence.TypedQuery;
 import model.Department;
 import model.Teacher;
 import org.hibernate.Session;
@@ -9,12 +8,17 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class manyToOneInteractive {
     public static void main(String[] args) {
         SessionFactory factory = new Configuration().configure().buildSessionFactory();
         Session session = factory.openSession();
+
+        System.out.println("=====================================");
+        System.out.println("   Welcome to ManyToOneInteractive!  ");
+        System.out.println("=====================================");
         try {
             manyToOneInteractive(factory, session);
         } catch (Exception e) {
@@ -26,8 +30,6 @@ public class manyToOneInteractive {
     }
 
     public static void manyToOneInteractive(SessionFactory factory, Session session) {
-        System.out.println("Welcome to ManyToOneInteractive!");
-
         try (Scanner scanner = new Scanner(System.in)) {
             while (true) {
                 System.out.println("\n0. Exit");
@@ -35,8 +37,8 @@ public class manyToOneInteractive {
                 System.out.println("2. Manage Teachers");
                 System.out.println("3. Assign Teacher to Department");
                 System.out.println("4. List Teachers");
-                System.out.println("5. List Department");
-                System.out.print("Choose an option: \n");
+                System.out.println("5. List Department\n");
+                System.out.print("Choose an option:\n\n");
                 int choice = scanner.nextInt();
                 switch (choice) {
                     case 0:
@@ -157,7 +159,6 @@ public class manyToOneInteractive {
         System.out.printf("\n%5s %s%n", "Id", " Department");
         System.out.println("===========================================");
         for(Department department : departments) {
-            //System.out.println(department.getDeptName()+": "+department.getDeptId() + "\n");
             System.out.printf("%5s. %s%n", department.getDeptId(), department.getDeptName());
         }
 
@@ -187,8 +188,6 @@ public class manyToOneInteractive {
                 departmentName = "-";
             }
 
-
-            //System.out.println(teacher.getTeacherName() + ": " + teacher.getTeacherId() + "\n");
             System.out.printf("%5s. %10s %13s%n", teacher.getTeacherId(), teacher.getTeacherName(), departmentName);
         }
 
@@ -293,12 +292,12 @@ public class manyToOneInteractive {
             //Query<Department> query = session.createNamedQuery("updateDeptById", Department.class);
             //"SELECT deptName FROM Department d WHERE d.deptId = :deptId"
 //            Query query = session.createQuery("UPDATE Department SET deptName = :newDeptName WHERE deptId = :deptId");
-            Query<Department> query = session.createNamedQuery("updateDeptById", Department.class);
+            Query query = session.createNamedQuery("updateDeptById");
             query.setParameter("newDeptName", name);
             query.setParameter("deptId", choice);
             int rowsAffected = query.executeUpdate();
             if (rowsAffected > 0) {
-                System.out.println(rowsAffected + "(s) were inserted");
+                System.out.println("\n"+ rowsAffected + "(s) were inserted");
             }
             t.commit();
             System.out.println("successfully saved");
@@ -321,7 +320,7 @@ public class manyToOneInteractive {
         Session session = factory.openSession();
         Transaction t = session.beginTransaction();
 
-        String hql1 = "SELECT deptName FROM Department d WHERE d.deptName = :deptName";
+        String hql1 = "FROM Department d WHERE d.deptName = :deptName";
 
         System.out.println("Input Department Name to update it: ");
         String choice = scanner.nextLine();
@@ -333,13 +332,13 @@ public class manyToOneInteractive {
             String name = scanner.nextLine();
 
 //            Query query = session.createQuery("UPDATE Department set deptName = :newDeptName where deptName = :deptName");
-            Query<Department> query = session.createNamedQuery("updateDeptByName", Department.class);
+            Query query = session.createNamedQuery("updateDeptByName");
             query.setParameter("newDeptName", name);
             query.setParameter("deptName", choice);
             session.persist(dept);
             int rowsAffected = query.executeUpdate();
             if (rowsAffected > 0) {
-                System.out.println(rowsAffected + "(s) were inserted");
+                System.out.println("\n"+ rowsAffected + "(s) were inserted");
             }
             t.commit();
             System.out.println("successfully saved");
@@ -457,15 +456,19 @@ public class manyToOneInteractive {
             String name = scanner.nextLine();
 
             //Query query = session.createQuery("UPDATE Department SET deptName = :newDeptName WHERE deptId = :deptId");
-            Query<Teacher> query = session.createNamedQuery("updateTeacherById", Teacher.class);
-            query.setParameter("newTeacherName", name);
-            query.setParameter("id", choice);
-            int rowsAffected = query.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println(rowsAffected + "(s) were inserted");
-            }
+            //Query<Teacher> query = (Query) session.createMutationQuery("UPDATE Teacher SET teacherName = :newTeacherName WHERE teacherId = :id");
+//            Query query = session.createNamedQuery("updateTeacherById");
+//            query.setParameter("newTeacherName", name);
+//            query.setParameter("id", choice);
+//            int rowsAffected = query.executeUpdate();
+//            if (rowsAffected > 0) {
+//                System.out.println("\n"+ rowsAffected + " row was updated");
+//            }
+            teacher.setTeacherName(name);
+            System.out.println(teacher.getTeacherName() + " was updated");
+            session.merge(teacher);
             t.commit();
-            System.out.println("successfully saved");
+            System.out.println("successfully saved\n");
 
             System.out.println("New Teacher name - " + teacher.getTeacherName() + " by id = " + teacher.getTeacherId());
         } catch (jakarta.persistence.NoResultException e) {
@@ -473,7 +476,7 @@ public class manyToOneInteractive {
             System.out.println("Teacher " + choice + " does not exist.\nDo you want to create it? (Yes/No)\n");
             String answer = scanner.nextLine();
             if (answer.equalsIgnoreCase("yes")) {
-                createDepartment(scanner, factory);
+                createTeacher(scanner, factory);
             } else if (answer.equalsIgnoreCase("no")) {
                 manyToOneInteractive(factory, session);
             } else System.out.println("Invalid option. Exiting...");
@@ -495,17 +498,21 @@ public class manyToOneInteractive {
             Teacher teacher = session.createQuery(hql1, Teacher.class).setParameter("teacherName", choice).getSingleResult();
             System.out.println("Found Teacher " + teacher.getTeacherName() + " by id = " + choice);
             System.out.println("\nInput new Teacher name:\n");
+
             String name = scanner.nextLine();
-
-
-            Query<Teacher> query = session.createNamedQuery("updateTeacherByName", Teacher.class);
-            query.setParameter("newTeacherName", name);
-            query.setParameter("teacherName", choice);
-            int rowsAffected = query.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println(rowsAffected + "(s) were inserted");
-            }
+//
+//            Query query = session.createNamedQuery("updateTeacherByName");
+//            query.setParameter("newTeacherName", name);
+//            query.setParameter("teacherName", choice);
+//            int rowsAffected = query.executeUpdate();
+//            if (rowsAffected > 0) {
+//                System.out.println("\n"+ rowsAffected + "(s) were inserted");
+//            }
+            teacher.setTeacherName(name);
+            System.out.println(teacher.getTeacherName() + " was updated");
+            session.merge(teacher);
             t.commit();
+
             System.out.println("successfully saved");
 
             System.out.println("New Teacher name - " + teacher.getTeacherName() + " by id = " + teacher.getTeacherId());

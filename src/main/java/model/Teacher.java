@@ -7,13 +7,14 @@ import java.io.Serializable;
 
 @Entity
 @Table
-@NamedQuery(name="updateTeacherById", query = "UPDATE Teacher set teacherName = :newTeacherName WHERE teacherId = :id")
-@NamedQuery(name="updateTeacherByName", query = "UPDATE Teacher set teacherName = :newTeacherName WHERE teacherName = :teacherName")
+@NamedQuery(name="updateTeacherById", query = "UPDATE Teacher SET teacherName = :newTeacherName WHERE teacherId = :id")
+@NamedQuery(name="updateTeacherByName", query = "UPDATE Teacher SET teacherName = :newTeacherName WHERE teacherName = :teacherName")
+
 @NamedQuery(name="selectNameById", query = "SELECT teacherName FROM Teacher WHERE teacherId = :id")
 @NamedQuery(name="selectTeacherNameByName", query = "SELECT teacherName FROM Teacher WHERE teacherName = :teacherName")
 
-
 @NamedQuery(name="selectTeacherNames", query = "SELECT teacherName FROM Teacher")
+
 @NamedQuery(name="selectTeacherById", query = "FROM Teacher WHERE teacherId = :id")
 @NamedQuery(name="Teacher.findAll", query = "FROM Teacher")
 
